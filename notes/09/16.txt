@@ -1,0 +1,27 @@
+-Signature
+
+How do I do the fingerprint, that means I have to build a profile (a subsequence of packet sizes and timing maybe). 
+First, I might have to cluster these data points. What do I use? 
+With clustering bursts, we might be able to get rid of non-message traffic 
+
+Copy data collection from the PingPong paper. 
+Copy the "all-encompassing" nature from the other IoT IP/port paper
+
+Extracting packet sequence from the bursts and clustering them
+Finding these subsequences within these pcaps
+
+Intro
+Background
+    -previous work 
+Data collection
+Characterizing IMA traffic 
+Classifying IMA flows 
+Identifying IMA messages
+    -finding the size of the message through the correlation
+
+
+
+
+
+Security analyst bruh let's do this. I'm actually excited about life and shit now dude wtf. Bout to be big and start my life.
+Life is starting to look good. 
