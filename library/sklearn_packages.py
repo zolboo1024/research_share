@@ -17,3 +17,5 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.inspection import DecisionBoundaryDisplay
 from sklearn.model_selection import cross_validate
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
