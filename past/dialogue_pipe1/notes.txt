@@ -1,0 +1,3 @@
+merge -> tranalyze -> inter_ima -> intra_ima
+
+NOT doing cross-validation.
