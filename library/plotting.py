@@ -45,3 +45,8 @@ def export_cm(y_test, y_predic, name, block_names=apps_fullname):
 def export_df(df, name):
     df_styled = df.style.background_gradient() #adding a gradient based on values in cell
     dfi.export(df_styled, f'{plots_root}/{name}.png')
+
+#takes a df and prints out using the IPython library into an PNG
+def export_df_full(df, name):
+    df_styled = df.style.background_gradient() #adding a gradient based on values in cell
+    dfi.export(df_styled, f'{name}.png')
