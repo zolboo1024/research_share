@@ -9,22 +9,27 @@ num_flowss = {
 
 total_training = 3179
 
+reclassify_threshold = 0.9
+
 all_apps = [
     "sig", "wha", "dis", "tel", "mes", "tea"
 ]
 
 all_apps_fullname = [
-    "Signal", "WhatsApp", "Discord", "Telegram", "Messenger", "Teams"
+    "Discord","Messenger","Telegram","Teams","Whatsapp","Signal"
 ]
-
 three_apps = [
     "wha", "dis", "tel"
 ]
 
 three_apps_fullname = [
-    "WhatsApp", "Discord", "Telegram"
+    "Discord","Telegram","Whatsapp"
 ]
 
-models = ["Random Forest"]
+model = "Random Forest"
+
+size_timing_features = ["label","numPktsSnt",	"numPktsRcvd",	"numBytesSnt",	"numBytesRcvd",	
+                    "minPktSz",	"maxPktSz",	"avePktSize",	"stdPktSize",	"minIAT",	
+                        "maxIAT",	"aveIAT",	"stdIAT",	"bytps"]
 
 plot_folder = "/home/zolboo/back/research/ensemble_pipe/plots"

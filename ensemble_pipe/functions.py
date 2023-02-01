@@ -25,84 +25,101 @@ def choose_features(comb):
     comb["label"] = comb["label"].map(lambda x: app_to_num[x])
     labels = comb["label"]
 
-    comb = comb[["label","numPktsSnt",	"numPktsRcvd",	"numBytesSnt",	"numBytesRcvd",	
-                    "minPktSz",	"maxPktSz",	"avePktSize",	"stdPktSize",	"minIAT",	
-                        "maxIAT",	"aveIAT",	"stdIAT",	"bytps"]]
+    comb = comb[size_timing_features]
 
     comb = shuffle(comb)
     return comb
 
+def get_trained_model(comb):
+    clf = RandomForestClassifier()
+    xy_train = comb.groupby("label").sample(n=total_training, random_state=1)
+    x_train = xy_train.drop("label", axis=1)
+    y_train = xy_train["label"]
+    xy_test = comb.drop(xy_train.index)
+    x_test = xy_test.drop("label", axis=1)
+    y_test = xy_test['label']
+    clf.fit(x_train, y_train)
+    y_predic = clf.predict(x_test)
+    return clf
+
+def print_scores(y_test, y_predic, apps_fullname, name):
+    precs = precision_score(y_test, y_predic, average=None)
+    print(len(precs))
+    recalls = recall_score(y_test, y_predic, average=None)
+    f1s = f1_score(y_test, y_predic, average=None)
+    df = pd.DataFrame({"IMA Class": apps_fullname, "Precision": precs, "Recall": recalls, "F1": f1s})
+    export_df_full(df, f"{plot_folder}/{name}")
+    return df
 
 def train_and_plot(comb, classes, name):
     trained_model = {}
-    for model in models:
-        clf = cdic[model]
 
-        arr = []
-        f1_ranges = []
-        pred_ranges = []
-        recall_ranges = []
+    arr = []
+    f1_ranges = []
+    pred_ranges = []
+    recall_ranges = []
 
-        dis_scores = []
-        mes_scores = []
-        tel_scores = []
-        tea_scores = []
-        wha_scores = []
-        sig_scores = []
+    dis_scores = []
+    mes_scores = []
+    tel_scores = []
+    tea_scores = []
+    wha_scores = []
+    sig_scores = []
 
-        apps = all_apps
-        all_scores = [dis_scores, mes_scores, tel_scores, tea_scores, wha_scores, sig_scores]
-        apps_fullname = all_apps_fullname
-        if classes == "subclasses":
-            apps = three_apps
-            all_scores = [dis_scores, tel_scores, wha_scores]
-            apps_fullname = three_apps_fullname
+    apps = all_apps
+    all_scores = [sig_scores, wha_scores, dis_scores, tel_scores, mes_scores, tea_scores]
+    apps_fullname = all_apps_fullname
+    if classes == "subclasses":
+        apps = three_apps
+        all_scores = [wha_scores, dis_scores, tel_scores]
+        apps_fullname = three_apps_fullname
 
-        for i in range(1,11):
-            xy_train = comb.groupby("label").sample(n=3179, random_state=i)
-            x_train = xy_train.drop("label", axis=1)
-            y_train = xy_train["label"]
-            xy_test = comb.drop(xy_train.index)
-            x_test = xy_test.drop("label", axis=1)
-            y_test = xy_test['label']
-            clf.fit(x_train, y_train)
-            y_predic = clf.predict(x_test)
-            train_predic = clf.predict(x_train)
+    for i in range(1,11):
+        clf = RandomForestClassifier()
+        xy_train = comb.groupby("label").sample(n=total_training, random_state=1)
+        x_train = xy_train.drop("label", axis=1)
+        y_train = xy_train["label"]
+        xy_test = comb.drop(xy_train.index)
+        x_test = xy_test.drop("label", axis=1)
+        y_test = xy_test['label']
+        clf.fit(x_train, y_train)
+        y_predic = clf.predict(x_test)
+        train_predic = clf.predict(x_train)
 
-            for j in range(len(all_scores)):
-                all_scores[j].append([])
+        for j in range(len(all_scores)):
+            all_scores[j].append([])
 
-            recalls = recall_score(y_test, y_predic, average=None)
-            for j in range(len(all_scores)):
-                all_scores[j][-1].append(recalls[j])
+        recalls = recall_score(y_test, y_predic, average=None)
+        for j in range(len(all_scores)):
+            all_scores[j][-1].append(recalls[j])
 
-            precisions = precision_score(y_test, y_predic, average=None)
-            for j in range(len(all_scores)):
-                all_scores[j][-1].append(precisions[j])
+        precisions = precision_score(y_test, y_predic, average=None)
+        for j in range(len(all_scores)):
+            all_scores[j][-1].append(precisions[j])
 
-            f1s = f1_score(y_test, y_predic, average=None)
-            for j in range(len(all_scores)):
-                all_scores[j][-1].append(f1s[j])
-            print(f"Iteration: {i}")
+        f1s = f1_score(y_test, y_predic, average=None)
+        for j in range(len(all_scores)):
+            all_scores[j][-1].append(f1s[j])
+        print(f"Iteration: {i}")
 
-        for i in range(len(apps)):
-            all_recalls = []
-            for j in range(10): #iteration
-                all_recalls.append(all_scores[i][j][0])
-            recall_ranges.append(f"{round(min(all_recalls),3)}-{round(max(all_recalls),3)}")
-        
-        for i in range(len(apps)):
-            all_precisions = []
-            for j in range(10): #iteration
-                all_precisions.append(all_scores[i][j][1])
-            pred_ranges.append(f"{round(min(all_precisions),3)}-{round(max(all_precisions),3)}")
+    for i in range(len(apps)):
+        all_recalls = []
+        for j in range(10): #iteration
+            all_recalls.append(all_scores[i][j][0])
+        recall_ranges.append(f"{round(min(all_recalls),3)}-{round(max(all_recalls),3)}")
+    
+    for i in range(len(apps)):
+        all_precisions = []
+        for j in range(10): #iteration
+            all_precisions.append(all_scores[i][j][1])
+        pred_ranges.append(f"{round(min(all_precisions),3)}-{round(max(all_precisions),3)}")
 
-        for i in range(len(apps)):
-            all_f1s = []
-            for j in range(10): #iteration
-                all_f1s.append(all_scores[i][j][2])
-            f1_ranges.append(f"{round(min(all_f1s),3)}-{round(max(all_f1s),3)}")
-        df = pd.DataFrame({"IMA Class": apps_fullname, "Precision": pred_ranges, "Recall": recall_ranges, "F1": f1_ranges})
-        export_df_full(df, f"{plot_folder}/{name}_{classes}")
+    for i in range(len(apps)):
+        all_f1s = []
+        for j in range(10): #iteration
+            all_f1s.append(all_scores[i][j][2])
+        f1_ranges.append(f"{round(min(all_f1s),3)}-{round(max(all_f1s),3)}")
+    df = pd.DataFrame({"IMA Class": apps_fullname, "Precision": pred_ranges, "Recall": recall_ranges, "F1": f1_ranges})
+    export_df_full(df, f"{plot_folder}/{name}_{classes}")
 
     
