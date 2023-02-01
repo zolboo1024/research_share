@@ -15,26 +15,25 @@ def split_dataset(comb):
     y_test = xy_test['label']
     return x_train, y_train, x_test, y_test
 
-def get_both_models():
+def get_both_models(name):
     print("Building the three class model")
     #model for the three classes
     subset_comb = import_datasets(three_apps)
     subset_comb = choose_features(subset_comb)
-    subset_rf = get_trained_model(subset_comb)
+    subset_rf = get_trained_model(subset_comb, name) 
 
     print("Building the all class model")
     #initial model for all the classes
     comb = import_datasets(all_apps)
     comb = choose_features(comb)
-    all_rf = get_trained_model(comb)
+    all_rf = get_trained_model(comb, name)
 
     return subset_rf, all_rf, comb
 
 def get_confidence_and_pipe_based():
     name = sys.argv[1]
     print("Starting confidence and pipe based ensemble")
-    subset_rf, all_rf, comb = get_both_models()
-
+    subset_rf, all_rf, comb = get_both_models(name)
     #get the training and testing dataset for the main problem (all classes)
     x_train, y_train, x_test, y_test = split_dataset(comb)
 
@@ -62,7 +61,7 @@ def get_confidence_and_pipe_based():
 def get_confidence_based():
     name = sys.argv[1]
     print("Starting confidence-based ensemble")
-    subset_rf, all_rf, comb = get_both_models()
+    subset_rf, all_rf, comb = get_both_models(name)
 
     #get the training and testing dataset for the main problem (all classes)
     x_train, y_train, x_test, y_test = split_dataset(comb)
@@ -90,7 +89,7 @@ def get_confidence_based():
 def get_pipe():
     name = sys.argv[1]
     print("Starting pipe-based ensemble")
-    subset_rf, all_rf, comb = get_both_models()
+    subset_rf, all_rf, comb = get_both_models(name)
     #get the training and testing dataset for the main problem (all classes)
     x_train, y_train, x_test, y_test = split_dataset(comb)
 
@@ -107,7 +106,6 @@ def get_pipe():
     x_to_reclassify = x_test.iloc[indexes_to_replace]
     y_true_to_reclassify = y_test.iloc[indexes_to_replace]
     new_classification = subset_rf.predict(x_to_reclassify)
-    print_scores(y_true_to_reclassify, new_classification, all_apps_fullname, name+"_only_reclassified")
     for i in range(len(indexes_to_replace)):
         cur_index = indexes_to_replace[i]
         new_y = new_classification[i]

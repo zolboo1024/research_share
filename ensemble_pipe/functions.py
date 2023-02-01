@@ -30,7 +30,7 @@ def choose_features(comb):
     comb = shuffle(comb)
     return comb
 
-def get_trained_model(comb):
+def get_trained_model(comb, name):
     clf = RandomForestClassifier()
     xy_train = comb.groupby("label").sample(n=total_training, random_state=1)
     x_train = xy_train.drop("label", axis=1)
@@ -40,6 +40,8 @@ def get_trained_model(comb):
     y_test = xy_test['label']
     clf.fit(x_train, y_train)
     y_predic = clf.predict(x_test)
+    if clf.n_classes_ == 3:
+        print_scores(y_test, y_predic, three_apps_fullname, name+"_3class")
     return clf
 
 def print_scores(y_test, y_predic, apps_fullname, name):
